@@ -68,7 +68,6 @@ def generate_meal_plan(db: Session, week_start: date) -> MealPlan:
     existing = db.query(MealPlan).filter(MealPlan.week_start_date == week_start).first()
     if existing:
         db.delete(existing)
-        db.commit()
 
     inventory = get_all_items(db)
     planned_days = _plan_meals(inventory, week_start)

@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.homeops.grocery.network.RetrofitClient
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,11 +29,11 @@ import java.util.*
 @Composable
 fun CaptureScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var statusMessage by remember { mutableStateOf("") }
     var isUploading by remember { mutableStateOf(false) }
 
     // Pending capture metadata – set before launching the camera intent.
-    var pendingUri by remember { mutableStateOf<Uri?>(null) }
     var pendingFile by remember { mutableStateOf<File?>(null) }
     var pendingLocation by remember { mutableStateOf<String?>(null) }
     var pendingIsReceipt by remember { mutableStateOf(false) }
@@ -46,7 +45,7 @@ fun CaptureScreen(onBack: () -> Unit) {
             val file = pendingFile ?: return@rememberLauncherForActivityResult
             isUploading = true
             statusMessage = "Uploading…"
-            CoroutineScope(Dispatchers.IO).launch {
+            scope.launch(Dispatchers.IO) {
                 val result = uploadFile(file, pendingLocation, pendingIsReceipt)
                 withContext(Dispatchers.Main) {
                     isUploading = false
@@ -61,7 +60,6 @@ fun CaptureScreen(onBack: () -> Unit) {
     fun launchCamera(location: String?, isReceipt: Boolean) {
         val (file, uri) = createTempImageFile(context)
         pendingFile = file
-        pendingUri = uri
         pendingLocation = location
         pendingIsReceipt = isReceipt
         cameraLauncher.launch(uri)
