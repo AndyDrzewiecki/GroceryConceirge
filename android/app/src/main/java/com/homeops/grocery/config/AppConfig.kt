@@ -1,18 +1,15 @@
 package com.homeops.grocery.config
 
 /**
- * Central configuration file for the HomeOps Grocery Android app.
+ * Default BASE_URL when the user has not yet configured a server address
+ * via the in-app Settings screen.
  *
- * Change BASE_URL to match the IP address and port of your miniPC running the backend.
- * Example: "http://192.168.1.42:8000/"
+ * - "http://10.0.2.2:8000/"  →  standard Android emulator host alias.
+ * - Physical phone on LAN    →  change via Settings screen at runtime.
+ *   No personal IPs are committed to source control.
  *
- * Note: Cleartext traffic is allowed in the manifest for development convenience.
- *       Use HTTPS and a proper certificate in production.
+ * The trailing slash is required by Retrofit.
  */
 object AppConfig {
-    /**
-     * Base URL for the HomeOps Grocery backend API.
-     * Must end with a trailing slash.
-     */
-    const val BASE_URL = "http://192.168.1.100:8000/"
+    const val DEFAULT_BASE_URL = "http://10.0.2.2:8000/"
 }

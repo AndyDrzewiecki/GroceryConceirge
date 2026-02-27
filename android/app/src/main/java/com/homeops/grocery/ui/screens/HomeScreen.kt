@@ -1,6 +1,8 @@
 package com.homeops.grocery.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,11 +16,13 @@ import com.homeops.grocery.viewmodel.ConnectionState
 import com.homeops.grocery.viewmodel.HomeUiState
 import com.homeops.grocery.viewmodel.HomeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToCapture: () -> Unit,
     onNavigateToShoppingList: () -> Unit,
     onNavigateToReceipts: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -28,6 +32,15 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text("HomeOps Grocery") },
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Server settings",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -40,8 +53,19 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // Current server URL chip.
+            SuggestionChip(
+                onClick = onNavigateToSettings,
+                label = {
+                    Text(
+                        text = "Server: ${viewModel.currentBaseUrl}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                },
+            )
+
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -68,7 +92,6 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     val dashboard = state.dashboard
 
-                    // Month spend card.
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("This Month's Grocery Spend", style = MaterialTheme.typography.labelMedium)
@@ -81,7 +104,6 @@ fun HomeScreen(
                         }
                     }
 
-                    // Today's meal card.
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Today's Meal", style = MaterialTheme.typography.labelMedium)
@@ -92,9 +114,8 @@ fun HomeScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(4.dp))
 
-                    // Action buttons.
                     Button(
                         onClick = onNavigateToCapture,
                         modifier = Modifier.fillMaxWidth(),
@@ -121,8 +142,7 @@ fun HomeScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // Test Connection button.
-            Divider()
+            HorizontalDivider()
             Text("Developer Tools", style = MaterialTheme.typography.labelSmall)
             OutlinedButton(
                 onClick = { viewModel.testConnection() },

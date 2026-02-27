@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.homeops.grocery.ui.screens.CaptureScreen
 import com.homeops.grocery.ui.screens.HomeScreen
 import com.homeops.grocery.ui.screens.ReceiptScreen
+import com.homeops.grocery.ui.screens.SettingsScreen
 import com.homeops.grocery.ui.screens.ShoppingListScreen
 
 object Routes {
@@ -14,6 +15,7 @@ object Routes {
     const val CAPTURE = "capture"
     const val SHOPPING_LIST = "shopping_list"
     const val RECEIPTS = "receipts"
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -25,6 +27,7 @@ fun NavGraph(navController: NavHostController) {
                 onNavigateToCapture = { navController.navigate(Routes.CAPTURE) },
                 onNavigateToShoppingList = { navController.navigate(Routes.SHOPPING_LIST) },
                 onNavigateToReceipts = { navController.navigate(Routes.RECEIPTS) },
+                onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
             )
         }
 
@@ -38,6 +41,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Routes.RECEIPTS) {
             ReceiptScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

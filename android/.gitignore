@@ -8,3 +8,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Keep the wrapper jar committed so the project builds offline.
+!gradle/wrapper/gradle-wrapper.jar

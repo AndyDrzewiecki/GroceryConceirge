@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.homeops.grocery.network.RetrofitClient
 import com.homeops.grocery.network.models.Receipt
 import com.homeops.grocery.network.models.ReceiptMetadataUpdate
+import com.homeops.grocery.settings.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,8 +18,6 @@ sealed class ReceiptUiState {
 
 class ReceiptViewModel : ViewModel() {
 
-    private val api = RetrofitClient.instance
-
     private val _uiState = MutableStateFlow<ReceiptUiState>(ReceiptUiState.Loading)
     val uiState: StateFlow<ReceiptUiState> = _uiState
 
@@ -29,6 +28,7 @@ class ReceiptViewModel : ViewModel() {
     fun loadReceipts() {
         viewModelScope.launch {
             _uiState.value = ReceiptUiState.Loading
+            val api = RetrofitClient.getApi(SettingsManager.getBaseUrl())
             try {
                 val response = api.getReceipts()
                 if (response.isSuccessful) {
@@ -44,6 +44,7 @@ class ReceiptViewModel : ViewModel() {
 
     fun updateMetadata(receiptId: Int, store: String?, total: Double?, purchaseDate: String?) {
         viewModelScope.launch {
+            val api = RetrofitClient.getApi(SettingsManager.getBaseUrl())
             try {
                 val response = api.updateReceiptMetadata(
                     receiptId,

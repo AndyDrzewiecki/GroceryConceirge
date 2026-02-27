@@ -113,20 +113,63 @@ http://<minipc-ip>:8000/docs
 
 ---
 
-## Setting the Android Base URL
+## Getting the Android APK
 
-Open `android/app/src/main/java/com/homeops/grocery/config/AppConfig.kt`:
+### Option A – Download from GitHub Actions (recommended)
 
-```kotlin
-object AppConfig {
-    const val BASE_URL = "http://192.168.1.100:8000/"  // ← change this
-}
+Every push to any branch triggers the `Android Debug APK` workflow.
+
+1. Go to the repository on GitHub.
+2. Click the **Actions** tab.
+3. Select the latest `Android Debug APK` run.
+4. Scroll to the **Artifacts** section at the bottom of the run summary.
+5. Download `homeops-grocery-debug-apk` (a ZIP containing `app-debug.apk`).
+
+### Option B – Build locally
+
+```bash
+# Windows
+cd android && .\gradlew.bat :app:assembleDebug
+
+# Linux / macOS
+cd android && ./gradlew :app:assembleDebug
 ```
 
-Replace `192.168.1.100` with the actual IP address of your miniPC.
-The trailing slash is **required**.
+Output: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-Then rebuild and install the app.
+### Install on phone
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+## Setting the Backend URL at Runtime
+
+The app ships with the emulator default (`http://10.0.2.2:8000/`).
+**No personal IP is committed to source control.**
+
+To point the app at your miniPC on a physical phone:
+
+1. Open the app on the phone.
+2. Tap the **gear icon** (⚙) in the top-right corner of the Home screen.
+3. Enter your miniPC's LAN URL, e.g. `http://192.168.1.42:8000/`
+4. Tap **Save**.
+5. Return to Home and tap **Test Connection** – you should see `OK`.
+
+The URL is stored in SharedPreferences and persists between app restarts.
+
+---
+
+## Quick End-to-End Test
+
+```
+a) Start backend:      cd infra && docker compose up --build
+b) Phone on same Wi-Fi as miniPC
+c) In app: Settings → set BASE_URL to http://<ZBOOK-IP>:8000/
+d) Home → tap "Test Connection"  →  expects "OK – http://... → status: ok"
+```
 
 ---
 
@@ -156,11 +199,11 @@ New-NetFirewallRule -DisplayName "HomeOps Grocery API" -Direction Inbound -Proto
 
 ## Android Development
 
-Open the `android/` folder in Android Studio (Electric Eel or newer).
+Open the `android/` folder in Android Studio (Hedgehog or newer).
 
-1. Set `AppConfig.BASE_URL` to your miniPC's IP.
-2. Enable developer mode and USB debugging on the phone.
-3. Connect the phone, press **Run** in Android Studio.
+1. Enable developer mode and USB debugging on the phone.
+2. Connect the phone, press **Run** in Android Studio.
+3. On first launch, tap the gear icon and enter your backend URL.
 
 The app uses cleartext HTTP for development convenience (`android:usesCleartextTraffic="true"` in the manifest). For production, serve the backend over HTTPS and remove this flag.
 

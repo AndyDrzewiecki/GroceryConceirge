@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.homeops.grocery.network.RetrofitClient
 import com.homeops.grocery.network.models.ShoppingListItem
 import com.homeops.grocery.network.models.ShoppingListItemPatch
+import com.homeops.grocery.settings.SettingsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,8 +18,6 @@ sealed class ShoppingListUiState {
 
 class ShoppingListViewModel : ViewModel() {
 
-    private val api = RetrofitClient.instance
-
     private val _uiState = MutableStateFlow<ShoppingListUiState>(ShoppingListUiState.Loading)
     val uiState: StateFlow<ShoppingListUiState> = _uiState
 
@@ -29,6 +28,7 @@ class ShoppingListViewModel : ViewModel() {
     fun loadShoppingList() {
         viewModelScope.launch {
             _uiState.value = ShoppingListUiState.Loading
+            val api = RetrofitClient.getApi(SettingsManager.getBaseUrl())
             try {
                 val response = api.getShoppingList()
                 if (response.isSuccessful) {
@@ -44,6 +44,7 @@ class ShoppingListViewModel : ViewModel() {
 
     fun togglePurchased(item: ShoppingListItem) {
         viewModelScope.launch {
+            val api = RetrofitClient.getApi(SettingsManager.getBaseUrl())
             try {
                 val response = api.patchShoppingItem(item.id, ShoppingListItemPatch(purchased = !item.purchased))
                 if (response.isSuccessful) {
